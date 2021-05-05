@@ -25,7 +25,7 @@ jobs:
       with:
         files: "*.vsix"
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT }}
 
   changelog:
     needs: release
@@ -43,5 +43,7 @@ jobs:
     - name: Commit changelog
       run: |
         PACKAGE_VERSION=`node -p "require('./package.json').version"`
+        git config --local user.name "Anson Miu"
+        git config --local user.email "ansonmiu0214@users.noreply.github.com"
         git commit -am "CI: update changelog v$PACKAGE_VERSION"
         git push origin HEAD:main
