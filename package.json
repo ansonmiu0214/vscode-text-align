@@ -1,0 +1,119 @@
+{
+	"name": "text-align",
+	"displayName": "Text Align",
+	"description": "Horizontally align text in VS Code!",
+	"version": "0.1.0",
+	"engines": {
+		"vscode": "^1.55.0"
+	},
+	"author": {
+		"name": "Anson Miu",
+		"email": "me@ansonmiu.dev"
+	},
+	"categories": [
+		"Formatters"
+	],
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ansonmiu0214/vscode-text-align.git"
+	},
+	"publisher": "ansonmiu",
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "text-align.alignLeft",
+				"title": "Text Align: Left"
+			},
+			{
+				"command": "text-align.alignCenter",
+				"title": "Text Align: Center"
+			},
+			{
+				"command": "text-align.alignRight",
+				"title": "Text Align: Right"
+			},
+			{
+				"command": "text-align.configureMaxLineLength",
+				"title": "Text Align: Configure Maximum Line Length"
+			}
+		],
+		"menus": {
+			"editor/context": [
+				{
+					"command": "text-align.alignLeft",
+					"group": "alignment",
+					"when": "editorHasSelection"
+				},
+				{
+					"command": "text-align.alignCenter",
+					"group": "alignment",
+					"when": "editorHasSelection"
+				},
+				{
+					"command": "text-align.alignRight",
+					"group": "alignment",
+					"when": "editorHasSelection"
+				}
+			]
+		},
+		"configuration": {
+			"title": "Text Align",
+			"properties": {
+				"text-align.maxLineLength": {
+					"type": "number",
+					"default": 79,
+					"description": "Maximum length of line."
+				}
+			}
+		},
+		"keybindings": [
+			{
+				"command": "text-align.alignCenter",
+				"key": "ctrl+shift+c",
+				"mac": "cmd+shift+c",
+				"when": "editorHasSelection"
+			},
+			{
+				"command": "text-align.alignRight",
+				"key": "ctrl+shift+r",
+				"mac": "cmd+shift+r",
+				"when": "editorHasSelection"
+			},
+			{
+				"command": "text-align.alignLeft",
+				"key": "ctrl+shift+l",
+				"mac": "cmd+shift+l",
+				"when": "editorHasSelection"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js",
+		"changelog": "auto-changelog -p -u --commit-limit false",
+		"changelog-debug": "auto-changelog -p --template json --output changelog-data.json",
+		"package": "vsce package"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.4",
+		"@types/node": "^12.11.7",
+		"@types/vscode": "^1.55.0",
+		"@typescript-eslint/eslint-plugin": "^4.14.1",
+		"@typescript-eslint/parser": "^4.14.1",
+		"eslint": "^7.19.0",
+		"glob": "^7.1.6",
+		"mocha": "^8.2.1",
+		"typescript": "^4.1.3",
+		"vsce": "^1.88.0",
+		"vscode-test": "^1.5.0"
+	}
+}
