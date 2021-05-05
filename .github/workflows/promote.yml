@@ -1,0 +1,33 @@
+name: Promote
+
+on:
+  # Triggers the workflow on push events but only for the main branch
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'CI:')"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.PAT }}
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Install Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10.x
+    - run: npm install
+    - run: xvfb-run -a npm test
+    - name: Automated Version Bump
+      uses: 'phips28/gh-action-bump-version@master'
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      with:
+        commit-message: 'CI: bump version to {{version}}'

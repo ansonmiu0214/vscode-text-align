@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10.x
+    - run: npm install
+    - name: Package
+      run: npm run package
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "*.vsix"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  changelog:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10.x
+    - run: npm install
+    - name: Bump changelog
+      run: npm run changelog
+    - name: Commit changelog
+      run: |
+        PACKAGE_VERSION=`node -p "require('./package.json').version"`
+        git commit -am "CI: update changelog v$PACKAGE_VERSION"
+        git push origin HEAD:main
