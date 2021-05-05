@@ -98,8 +98,8 @@
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js",
-		"changelog": "auto-changelog -p -u --commit-limit false",
-		"changelog-debug": "auto-changelog -p --template json --output changelog-data.json",
+		"changelog": "auto-changelog",
+		"changelog-debug": "auto-changelog --template json --output changelog-data.json",
 		"package": "vsce package"
 	},
 	"devDependencies": {

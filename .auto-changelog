@@ -1,0 +1,6 @@
+{
+    "package": true,
+    "ignoreCommitPattern": "CI:*",
+    "template": "keepachangelog",
+    "commitLimit": false
+}
