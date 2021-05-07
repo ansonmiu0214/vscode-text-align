@@ -1,13 +1,13 @@
-import * as assert from 'assert';
-import * as os from 'os';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
 import * as vscode from 'vscode';
+import * as assert from 'assert';
 import * as utils from '../../utils';
 
 suite('Utils Test Suite', () => {
 	vscode.window.showInformationMessage('Start utils tests.');
+
+                               // ==============
+                               // formatPathLink
+                               // ==============
 
     test('formatPathLink - Windows', () => {
         // GIVEN
@@ -29,5 +29,63 @@ suite('Utils Test Suite', () => {
 
         // THEN
         assert.strictEqual(pathLink, 'foo.ts:1:2');
+    });
+
+                            // =====================
+                            // validateMaxLineLength
+                            // =====================
+
+    [
+        '1',
+        ' 12',
+        ' 99 ',
+    ].forEach(value => {
+        test(`validateMaxLineLength - valid: '${value}'`, () => {
+            // WHEN/THEN
+            utils.validateMaxLineLength(value);
+        });
+    });
+
+    test('validateMaxLineLength - non-integer', () => {
+        // GIVEN
+        const value = 'abc';
+
+        // WHEN
+        const thunk = () => utils.validateMaxLineLength(value);
+
+        // THEN
+        assert.throws(thunk, /Maximum line length must be an integer./);
+    });
+
+    [
+        '0',
+        '-1',
+    ].forEach(value => {
+        test(`validateMaxLineLength - non-positive: '${value}'`, () => {
+            // WHEN
+            const thunk = () => utils.validateMaxLineLength(value);
+    
+            // THEN
+            assert.throws(
+                thunk,
+                /Maximum line length must be a positive integer./
+            );
+        });
+    });
+
+                             // ===================
+                             // updateMaxLineLength
+                             // ===================
+
+    test('updateMaxLineLength', async () => {
+        // GIVEN
+        const maxLineLength = 42;
+        assert.notStrictEqual(utils.getMaxLineLength(), maxLineLength);
+
+        // WHEN
+        await utils.updateMaxLineLength(maxLineLength);
+
+        // THEN
+        assert.strictEqual(utils.getMaxLineLength(), maxLineLength);
     });
 });

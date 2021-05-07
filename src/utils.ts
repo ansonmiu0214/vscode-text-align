@@ -56,7 +56,7 @@ function validateMaxLineLength(value: string): void {
 
     if (maxLineLength <= 0) {
         throw new Error(
-            'Maximum line length must be a non-negative integer.'
+            'Maximum line length must be a positive integer.'
         );
     }
 }
