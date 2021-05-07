@@ -78,14 +78,23 @@ suite('Utils Test Suite', () => {
                              // ===================
 
     test('updateMaxLineLength', async () => {
-        // GIVEN
-        const maxLineLength = 42;
-        assert.notStrictEqual(utils.getMaxLineLength(), maxLineLength);
+        // SETUP
+        const oldLineLength = utils.getMaxLineLength();
 
-        // WHEN
-        await utils.updateMaxLineLength(maxLineLength);
+        try {
+            // GIVEN
+            const maxLineLength = 42;
+            assert.notStrictEqual(oldLineLength, maxLineLength);
+    
+            // WHEN
+            await utils.updateMaxLineLength(maxLineLength);
+    
+            // THEN
+            assert.strictEqual(utils.getMaxLineLength(), maxLineLength);
 
-        // THEN
-        assert.strictEqual(utils.getMaxLineLength(), maxLineLength);
+        } finally {
+            // TEARDOWN
+            await utils.updateMaxLineLength(oldLineLength);
+        }
     });
 });
