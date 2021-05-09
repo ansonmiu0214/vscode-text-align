@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import * as assert from 'assert';
+import { after, before, describe, it } from 'mocha';
+
 import * as utils from '../../utils';
 
 suite('Utils Test Suite', () => {
@@ -9,67 +11,71 @@ suite('Utils Test Suite', () => {
                                // formatPathLink
                                // ==============
 
-    test('formatPathLink - Windows', () => {
-        // GIVEN
-        const platform: NodeJS.Platform = 'win32';
+    describe('formatPathLink', () => {
+        it('for Windows', () => {
+            // GIVEN
+            const platform: NodeJS.Platform = 'win32';
+    
+            // WHEN
+            const pathLink = utils.formatPathLink(platform, 'foo.ts', 1, 2);
+    
+            // THEN
+            assert.strictEqual(pathLink, 'foo.ts#1');
+        });
 
-        // WHEN
-        const pathLink = utils.formatPathLink(platform, 'foo.ts', 1, 2);
-
-        // THEN
-        assert.strictEqual(pathLink, 'foo.ts#1');
-    });
-
-    test('formatPathLink - Non-Windows', () => {
-        // GIVEN
-        const platform: NodeJS.Platform = 'darwin';
-
-        // WHEN
-        const pathLink = utils.formatPathLink(platform, 'foo.ts', 1, 2);
-
-        // THEN
-        assert.strictEqual(pathLink, 'foo.ts:1:2');
+        it('for non-Windows', () => {
+            // GIVEN
+            const platform: NodeJS.Platform = 'darwin';
+    
+            // WHEN
+            const pathLink = utils.formatPathLink(platform, 'foo.ts', 1, 2);
+    
+            // THEN
+            assert.strictEqual(pathLink, 'foo.ts:1:2');
+        });
     });
 
                             // =====================
                             // validateMaxLineLength
                             // =====================
 
-    [
-        '1',
-        ' 12',
-        ' 99 ',
-    ].forEach(value => {
-        test(`validateMaxLineLength - valid: '${value}'`, () => {
-            // WHEN/THEN
-            utils.validateMaxLineLength(value);
+    describe('validateMaxLineLength', () => {
+        [
+            '1',
+            ' 12',
+            ' 99 ',
+        ].forEach(value => {
+            it(`works for valid input: '${value}'`, () => {
+                // WHEN/THEN
+                utils.validateMaxLineLength(value);
+            });
         });
-    });
-
-    test('validateMaxLineLength - non-integer', () => {
-        // GIVEN
-        const value = 'abc';
-
-        // WHEN
-        const thunk = () => utils.validateMaxLineLength(value);
-
-        // THEN
-        assert.throws(thunk, /Maximum line length must be an integer./);
-    });
-
-    [
-        '0',
-        '-1',
-    ].forEach(value => {
-        test(`validateMaxLineLength - non-positive: '${value}'`, () => {
+    
+        it('throws for non-integers', () => {
+            // GIVEN
+            const value = 'abc';
+    
             // WHEN
             const thunk = () => utils.validateMaxLineLength(value);
     
             // THEN
-            assert.throws(
-                thunk,
-                /Maximum line length must be a positive integer./
-            );
+            assert.throws(thunk, /Maximum line length must be an integer./);
+        });
+    
+        [
+            '0',
+            '-1',
+        ].forEach(value => {
+            it(`throws for non-positive values: '${value}'`, () => {
+                // WHEN
+                const thunk = () => utils.validateMaxLineLength(value);
+        
+                // THEN
+                assert.throws(
+                    thunk,
+                    /Maximum line length must be a positive integer./
+                );
+            });
         });
     });
 
@@ -77,24 +83,33 @@ suite('Utils Test Suite', () => {
                              // updateMaxLineLength
                              // ===================
 
-    test('updateMaxLineLength', async () => {
+    describe('updateMaxLineLength', () => {
+        let oldLineLength: number;
+    
         // SETUP
-        const oldLineLength = utils.getMaxLineLength();
+        before(() => {
+            oldLineLength = utils.getMaxLineLength();
+        });
 
-        try {
+
+        it('works', (done) => {
             // GIVEN
             const maxLineLength = 42;
             assert.notStrictEqual(oldLineLength, maxLineLength);
-    
-            // WHEN
-            await utils.updateMaxLineLength(maxLineLength);
-    
-            // THEN
-            assert.strictEqual(utils.getMaxLineLength(), maxLineLength);
 
-        } finally {
-            // TEARDOWN
-            await utils.updateMaxLineLength(oldLineLength);
-        }
+            // WHEN
+            utils.updateMaxLineLength(maxLineLength).then(() => {
+                // THEN
+                assert.strictEqual(utils.getMaxLineLength(), maxLineLength);
+                done();
+            }).catch(done);
+        });
+
+        // TEARDOWN
+        after((done) => {
+            utils.updateMaxLineLength(oldLineLength)
+                .then(done)
+                .catch(done);
+        });
     });
 });
