@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import * as assert from 'assert';
+
+import { expect } from 'chai';
 import { after, before, describe, it } from 'mocha';
 
 import * as utils from '../../utils';
@@ -20,7 +21,7 @@ suite('Utils Test Suite', () => {
             const pathLink = utils.formatPathLink(platform, 'foo.ts', 1, 2);
     
             // THEN
-            assert.strictEqual(pathLink, 'foo.ts#1');
+            expect(pathLink).to.equal('foo.ts#1');
         });
 
         it('for non-Windows', () => {
@@ -31,7 +32,7 @@ suite('Utils Test Suite', () => {
             const pathLink = utils.formatPathLink(platform, 'foo.ts', 1, 2);
     
             // THEN
-            assert.strictEqual(pathLink, 'foo.ts:1:2');
+            expect(pathLink).to.equal('foo.ts:1:2');
         });
     });
 
@@ -59,7 +60,7 @@ suite('Utils Test Suite', () => {
             const thunk = () => utils.validateMaxLineLength(value);
     
             // THEN
-            assert.throws(thunk, /Maximum line length must be an integer./);
+            expect(thunk).to.throw(/Maximum line length must be an integer./);
         });
     
         [
@@ -71,8 +72,7 @@ suite('Utils Test Suite', () => {
                 const thunk = () => utils.validateMaxLineLength(value);
         
                 // THEN
-                assert.throws(
-                    thunk,
+                expect(thunk).to.throw(
                     /Maximum line length must be a positive integer./
                 );
             });
@@ -92,24 +92,21 @@ suite('Utils Test Suite', () => {
         });
 
 
-        it('works', (done) => {
+        it('works', async () => {
             // GIVEN
             const maxLineLength = 42;
-            assert.notStrictEqual(oldLineLength, maxLineLength);
+            expect(oldLineLength).to.not.equal(maxLineLength);
 
             // WHEN
-            utils.updateMaxLineLength(maxLineLength).then(() => {
-                // THEN
-                assert.strictEqual(utils.getMaxLineLength(), maxLineLength);
-                done();
-            }).catch(done);
+            await utils.updateMaxLineLength(maxLineLength);
+            
+            // THEN
+            expect(utils.getMaxLineLength()).to.equal(maxLineLength);
         });
 
         // TEARDOWN
-        after((done) => {
-            utils.updateMaxLineLength(oldLineLength)
-                .then(done)
-                .catch(done);
+        after(async () => {
+            await utils.updateMaxLineLength(oldLineLength);
         });
     });
 });

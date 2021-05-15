@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import * as assert from 'assert';
+
+import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
 import * as alignments from '../../alignments';
@@ -35,7 +36,7 @@ suite('Utils Test Suite', () => {
                     .computePadding(maxLineLength)(lineLength);
     
                 // THEN
-                assert.strictEqual(actualPadding, expectedPadding);
+                expect(actualPadding).to.equal(expectedPadding);
             });
         });
     });
@@ -68,7 +69,7 @@ suite('Utils Test Suite', () => {
                     .computePadding(maxLineLength)(lineLength);
     
                 // THEN
-                assert.strictEqual(actualPadding, expectedPadding);
+                expect(actualPadding).to.equal(expectedPadding);
             });
         });
     });
@@ -101,7 +102,7 @@ suite('Utils Test Suite', () => {
                     .computePadding(maxLineLength)(lineLength);
     
                 // THEN
-                assert.strictEqual(actualPadding, expectedPadding);
+                expect(actualPadding).to.equal(expectedPadding);
             });
         });
     });
