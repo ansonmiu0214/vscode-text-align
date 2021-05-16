@@ -5,6 +5,7 @@ import { platform } from "os";
 
 import {
 	Alignment,
+	alignText,
 	leftAlign,
 	centerAlign,
 	rightAlign,
@@ -17,6 +18,12 @@ import {
 	validateMaxLineLength,
 } from "./utils";
 
+export {
+	activate,
+	alignmentCommand,
+	deactivate,
+};
+
 interface Command {
 	name: string;
 	callback: (...args: any[]) => any;
@@ -24,9 +31,7 @@ interface Command {
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {	
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
+function activate(context: vscode.ExtensionContext) {	
 	console.log('Congratulations, your extension "text-align" is now active!');
 
 	// The command has been defined in the package.json file
@@ -37,7 +42,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const alignmentCommands = [leftAlign, centerAlign, rightAlign]
 		.map(alignment => {
-			const { name, callback } = buildAlignmentCommand(alignment, outputChannel);
+			const { name, callback } = buildAlignmentCommand(
+				alignment,
+				outputChannel
+			);
 			return vscode.commands.registerCommand(
 				`${Config.EXTENSION_NAME}.${name}`,
 				callback
@@ -57,57 +65,68 @@ function buildAlignmentCommand(
 	alignment: Alignment,
 	outputChannel: vscode.OutputChannel
 ): Command {
-	const { name, computePadding } = alignment;
 	const callback = async () => {
-		const editor = vscode.window.activeTextEditor;
-		if (!editor) {
-			return;
-		}
-
-		console.log(editor.selections);
-		console.log(editor.selections[0].isEmpty);
-
-		if (editor.selections.every(selection => selection.isEmpty)) {
-			vscode.window.showErrorMessage('No selections to align.');
-			return;
-		}
-
-		const maxLineLength = getMaxLineLength();
-
-		let allEditsCanBeApplied = true;
-		for (const selection of editor.selections) {
-			const replacement = alignText(
-				computePadding(maxLineLength),
-				editor,
-				editor.document,
-				selection
-			);
-
-			const editCanBeApplied = await replacement;
-			allEditsCanBeApplied &&= allEditsCanBeApplied;
-			
-			if (!editCanBeApplied) {
-				const filePosition = formatPathLink(
-					platform(),
-					editor.document.uri.fsPath,
-					selection.start.line + 1,
-					selection.start.character + 1,
-				);
-				
-				outputChannel.appendLine(`${filePosition}: unable to align.`);
-			}
-		}
-
-		if (!allEditsCanBeApplied) {
-			vscode.window.showErrorMessage('Unable to apply all edits.');
-			outputChannel.show();
-		}
+		await alignmentCommand(
+			alignment,
+			outputChannel,
+			platform(),
+			vscode.window.activeTextEditor
+		);
 	};
 
 	return {
-		name,
+		name: alignment.name,
 		callback,
 	};
+}
+
+async function alignmentCommand(
+	alignment: Alignment,
+	outputChannel: vscode.OutputChannel,
+	platform: NodeJS.Platform,
+	editor?: vscode.TextEditor,
+) {
+	if (!editor) {
+		return;
+	}
+
+	const nonEmptySelections = editor.selections.filter(selection => !selection.isEmpty);
+
+	if (nonEmptySelections.length === 0) {
+		vscode.window.showErrorMessage('No selections to align.');
+		return;
+	}
+
+	const maxLineLength = getMaxLineLength();
+
+	let allEditsCanBeApplied = true;
+	for (const selection of nonEmptySelections) {
+		const replacement = alignText(
+			alignment.computePadding(maxLineLength),
+			editor,
+			editor.document,
+			selection
+		);
+
+		const editCanBeApplied = await replacement;
+		allEditsCanBeApplied &&= editCanBeApplied;
+		
+		if (!editCanBeApplied) {
+			const filePosition = formatPathLink(
+				platform,
+				editor.document.uri.fsPath,
+				selection.start.line + 1,
+				selection.start.character + 1,
+			);
+			
+			outputChannel.appendLine(`${filePosition}: unable to align.`);
+		}
+	}
+
+	if (!allEditsCanBeApplied) {
+		vscode.window.showErrorMessage('Unable to apply all edits.');
+		outputChannel.show();
+	}
 }
 
 async function promptUserToConfigureMaxLineLength() {
@@ -127,55 +146,7 @@ async function promptUserToConfigureMaxLineLength() {
 	await updateMaxLineLength(Number(lineLength));
 }
 
-function alignText(
-	computePaddedLineLength: (lineLength: number) => number,
-	editor: vscode.TextEditor,
-	document: vscode.TextDocument,
-	selection: vscode.Selection
-): Thenable<boolean> {
-	const { start, end }      = selection;
-	const { line: startLine } = start;
-	const { line: endLine }   = end;
 
-	return editor.edit((editBuilder) => {
-		for (let line = startLine; line <= endLine; ++line) {
-			const textLine = document.lineAt(line);
-
-			let selectedLineRange: vscode.Range;
-			let linePrefix: string;
-			let lineSuffix: string;
-
-			if (line === startLine) {
-				selectedLineRange = new vscode.Range(start, textLine.range.end);
-				linePrefix = document.getText(
-					new vscode.Range(textLine.range.start, start)
-				);
-				lineSuffix = '';
-			} else if (line === endLine) {
-				selectedLineRange = new vscode.Range(textLine.range.start, end);
-				linePrefix = '';
-				lineSuffix = document.getText(
-					new vscode.Range(end, textLine.range.end)
-				);
-			} else {
-				selectedLineRange = textLine.range;
-				linePrefix = '';
-				lineSuffix = '';
-			}
-
-			const lineText         = document.getText(selectedLineRange).trim();
-			const paddedLineLength = computePaddedLineLength(lineText.length);
-
-			const paddedText = lineText.padStart(
-				paddedLineLength - linePrefix.length, 
-				' '
-			);
-			const newLine = linePrefix + paddedText + lineSuffix;
-
-			editBuilder.replace(textLine.range, newLine);
-		}
-	});
-}
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+function deactivate() {}
