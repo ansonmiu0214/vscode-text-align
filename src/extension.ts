@@ -61,36 +61,58 @@ function activate(context: vscode.ExtensionContext) {
 	);
 }
 
+/**
+ * Returns an object that holds the name and the callback for a VS Code
+ * command that performs the specified 'alignment'.
+ *
+ * @param alignment - The alignment that the command will perform.
+ * @param outputChannel - The output channel that the command will use.
+ * @returns {Command} - The name of the command and its callback.
+ */
 function buildAlignmentCommand(
 	alignment: Alignment,
 	outputChannel: vscode.OutputChannel
 ): Command {
-	const callback = async () => {
-		await alignmentCommand(
-			alignment,
-			outputChannel,
-			platform(),
-			vscode.window.activeTextEditor
-		);
-	};
-
 	return {
 		name: alignment.name,
-		callback,
+		callback: async () => {
+			await alignmentCommand(
+				alignment,
+				outputChannel,
+				platform(),
+				vscode.window.activeTextEditor
+			);
+		},
 	};
 }
 
+/**
+ * The callback for a VS Code command to perform the specified 'alignment' on
+ * an instance of the VS Code text 'editor', given the user's 'platform'. The
+ * callback is a no-op if an editor is not defined, or if there are no active
+ * text selections in the 'editor'. If there are alignments that cannot be
+ * applied on the document, the user will be notified via the 'outputChannel'.
+ *
+ * @async
+ * @param {Alignment} alignment - The alignment that the command will perform.
+ * @param {vscode.OutputChannel} outputChannel - The output channel that the
+ * command will use.
+ * @param {NodeJS.Platform} platform - The current operating system.
+ * @param {vscode.TextEditor | undefined} editor - The active text editor.
+ * @returns 
+ */
 async function alignmentCommand(
 	alignment: Alignment,
 	outputChannel: vscode.OutputChannel,
 	platform: NodeJS.Platform,
 	editor?: vscode.TextEditor,
-) {
+): Promise<void> {
 	if (!editor) {
 		return;
 	}
 
-	const nonEmptySelections = editor.selections.filter(selection => !selection.isEmpty);
+	const nonEmptySelections = editor.selections
+		.filter(selection => !selection.isEmpty);
 
 	if (nonEmptySelections.length === 0) {
 		vscode.window.showErrorMessage('No selections to align.');
@@ -129,7 +151,13 @@ async function alignmentCommand(
 	}
 }
 
-async function promptUserToConfigureMaxLineLength() {
+/**
+ * Prompts the user to configure the maximum line length for this extension via
+ * a VS Code input box.
+ *
+ * @async
+ */
+async function promptUserToConfigureMaxLineLength(): Promise<void> {
 	const lineLength = await vscode.window.showInputBox({
 		prompt: 'Maximum Line Length',
 		placeHolder: String(getMaxLineLength()),
@@ -145,7 +173,6 @@ async function promptUserToConfigureMaxLineLength() {
 	
 	await updateMaxLineLength(Number(lineLength));
 }
-
 
 
 // this method is called when your extension is deactivated
