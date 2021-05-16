@@ -2,7 +2,7 @@
 	"name": "text-align",
 	"displayName": "Text Align",
 	"description": "Horizontally align text in VS Code!",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"engines": {
 		"vscode": "^1.55.0"
 	},
