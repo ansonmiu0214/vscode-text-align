@@ -16,6 +16,12 @@
 
 ## 💻 Installation
 
+### Preferred: from VSCE Marketplace
+
+Download from https://marketplace.visualstudio.com/items?itemName=AnsonMiu.text-align
+
+### Alternative: from GitHub releases
+
 1. Download the `.vsix` file from the [GitHub releases page](https://github.com/ansonmiu0214/vscode-text-align/releases)
 2. Install using the **Install from VSIX** command in the Extensions view command dropdown, or the **Extensions: Install from VSIX** command in the Command Palette, point to the `.vsix` file.
 
