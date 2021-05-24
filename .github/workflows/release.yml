@@ -26,6 +26,10 @@ jobs:
         files: "*.vsix"
       env:
         GITHUB_TOKEN: ${{ secrets.PAT }}
+    - name: Publish
+      run: num run deploy
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
   changelog:
     needs: release

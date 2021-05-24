@@ -100,7 +100,8 @@
 		"test": "node ./out/test/runTest.js",
 		"changelog": "auto-changelog",
 		"changelog-debug": "auto-changelog --template json --output changelog-data.json",
-		"package": "vsce package"
+		"package": "vsce package",
+		"deploy": "vsce publish"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.2.18",
