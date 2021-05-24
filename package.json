@@ -20,6 +20,13 @@
 		"type": "git",
 		"url": "https://github.com/ansonmiu0214/vscode-text-align.git"
 	},
+	"badges": [
+		{
+			"url": "https://vsmarketplacebadge.apphb.com/version-short/AnsonMiu.text-align.svg",
+			"href": "https://marketplace.visualstudio.com/items?itemName=AnsonMiu.text-align",
+			"description": "Version"
+		}
+	],
 	"publisher": "ansonmiu",
 	"main": "./out/extension.js",
 	"contributes": {

@@ -1,5 +1,7 @@
 # vscode-text-align
 
+![Version](https://vsmarketplacebadge.apphb.com/version-short/AnsonMiu.text-align.svg)
+
 > ## _Horizontally align text in VS Code!_
 
 <br />
