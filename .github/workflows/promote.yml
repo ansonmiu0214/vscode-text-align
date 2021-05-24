@@ -31,4 +31,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PAT }}
       with:
         commit-message: 'CI: bump version to v{{version}}'
-        tag-prefix:  ''
+        tag-prefix: 'v'
