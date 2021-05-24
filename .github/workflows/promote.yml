@@ -27,9 +27,8 @@ jobs:
     - run: xvfb-run -a npm test
     - name: Automated Version Bump
       uses: 'phips28/gh-action-bump-version@master'
-      with:
-        tag-prefix:  ''
       env:
         GITHUB_TOKEN: ${{ secrets.PAT }}
       with:
         commit-message: 'CI: bump version to v{{version}}'
+        tag-prefix:  ''
